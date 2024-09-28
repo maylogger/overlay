@@ -28,12 +28,18 @@ export default function Home() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      channel: "",
+      channel: "may_logger",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setChannel(values.channel);
+    if (isConnected) {
+      setChannel("");
+      setIsConnected(false);
+    } else {
+      setChannel(values.channel);
+      setIsConnected(true);
+    }
   }
 
   useEffect(() => {
@@ -44,7 +50,6 @@ export default function Home() {
     });
 
     client.connect();
-    setIsConnected(true);
 
     client.on("message", (channel, tags, message, self) => {
       if (self) return;
@@ -53,7 +58,6 @@ export default function Home() {
 
     return () => {
       client.disconnect();
-      setIsConnected(false);
     };
   }, [channel]);
 
