@@ -36,6 +36,7 @@ export default function Home() {
     if (isConnected) {
       setChannel("");
       setIsConnected(false);
+      setMessages([]);
     } else {
       setChannel(values.channel);
       setIsConnected(true);
