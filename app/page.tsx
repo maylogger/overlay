@@ -54,7 +54,11 @@ export default function Home() {
 
     client.on("message", (channel, tags, message, self) => {
       if (self) return;
-      setMessages((prev) => [...prev, `${tags["display-name"]}: ${message}`]);
+      setMessages((prev) => {
+        const newMessage = `${tags["display-name"]}: ${message}`;
+        // 保留最新的 10 條訊息，新訊息在最後
+        return [...prev, newMessage].slice(-10);
+      });
     });
 
     return () => {
