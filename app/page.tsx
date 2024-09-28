@@ -19,6 +19,7 @@ import {
 export default function Home() {
   const [messages, setMessages] = useState<string[]>([]);
   const [channel, setChannel] = useState<string>("");
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const formSchema = z.object({
     channel: z.string().min(1, { message: "請輸入頻道名稱" }),
@@ -43,13 +44,16 @@ export default function Home() {
     });
 
     client.connect();
+    setIsConnected(true);
 
     client.on("message", (channel, tags, message, self) => {
+      if (self) return;
       setMessages((prev) => [...prev, `${tags["display-name"]}: ${message}`]);
     });
 
     return () => {
       client.disconnect();
+      setIsConnected(false);
     };
   }, [channel]);
 
@@ -65,13 +69,21 @@ export default function Home() {
               <FormItem>
                 <FormLabel>Twitch 頻道名稱</FormLabel>
                 <FormControl>
-                  <Input placeholder="輸入頻道名稱" {...field} />
+                  <Input
+                    placeholder="輸入頻道名稱"
+                    {...field}
+                    disabled={isConnected}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">連接</Button>
+          {isConnected ? (
+            <Button type="submit">斷開</Button>
+          ) : (
+            <Button type="submit">連接</Button>
+          )}
         </form>
       </Form>
       <ul>
