@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import tmi from "tmi.js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ export default function Home() {
   const [messages, setMessages] = useState<TwitchMessage[]>([]); // 修改這行
   const [channel, setChannel] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const messageListRef = useRef<HTMLUListElement>(null); // 新增這行
 
   const formSchema = z.object({
     channel: z.string().min(1, { message: "請輸入頻道名稱" }),
@@ -86,6 +87,7 @@ export default function Home() {
     return messageHTML;
   }
 
+  // 使用 useMemo 來記憶最新的 10 條訊息
   useEffect(() => {
     if (!channel) return;
 
@@ -105,7 +107,6 @@ export default function Home() {
             emotes: (tags.emotes as Record<string, string[]>) || {},
           }),
         };
-        // 保留最新的 10 條訊息，新訊息在最後
         return [...prev, newMessage].slice(-10);
       });
     });
@@ -115,9 +116,18 @@ export default function Home() {
     };
   }, [channel]);
 
+  // 新增這個 useEffect 來控制 DOM 中的訊息數量
+  useEffect(() => {
+    if (messageListRef.current) {
+      const messageList = messageListRef.current;
+      while (messageList.children.length > 10) {
+        messageList.removeChild(messageList.firstChild as Node);
+      }
+    }
+  }, [messages]);
+
   return (
     <div>
-      <h1>自製 Twitch 聊天室訊息</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <FormField
@@ -144,12 +154,12 @@ export default function Home() {
           )}
         </form>
       </Form>
-      <ul className="space-y-0.5 mt-2">
+      <ul ref={messageListRef} className="space-y-0.5 mt-2">
         {messages.map((msg) => (
           <li key={msg.id}>
             <span>{msg.user} </span>{" "}
             <span
-              className="[&_img]:inline-block [&_img]:relative [&_img]:-mt-0.5"
+              className="[&_img]:inline-block [&_img]:relative [&_img]:-mt-0.5 [&_img]:h-6 [&_img]:w-auto"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(msg.content),
               }}
