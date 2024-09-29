@@ -1,6 +1,5 @@
-"use client";
-
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
@@ -46,9 +45,18 @@ export function ChannelForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      channel: localStorage.getItem("savedChannel") || "may_logger",
+      channel: "",
     },
   });
+
+  useEffect(() => {
+    if (!isConnected) {
+      form.setValue(
+        "channel",
+        localStorage.getItem("savedChannel") || "may_logger"
+      );
+    }
+  }, [form, isConnected]);
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
     const channelName = extractChannelName(values.channel);
