@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { extractChannelName } from "@/utils/channelUtils";
-
+import { cn } from "@/lib/utils";
 const formSchema = z.object({
   channel: z
     .string()
@@ -33,12 +32,15 @@ const formSchema = z.object({
     ),
 });
 
-type ChannelFormProps = {
+export function ChannelForm({
+  onSubmit,
+  isConnected,
+  className,
+}: {
   onSubmit: (channel: string) => void;
   isConnected: boolean;
-};
-
-export function ChannelForm({ onSubmit, isConnected }: ChannelFormProps) {
+  className?: string;
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +56,10 @@ export function ChannelForm({ onSubmit, isConnected }: ChannelFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className={cn("space-y-2", className)}
+      >
         <FormField
           control={form.control}
           name="channel"

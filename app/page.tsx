@@ -18,9 +18,16 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <ChannelForm onSubmit={handleChannelSubmit} isConnected={isConnected} />
-      <MessageList messages={messages} />
+    <div className="h-screen flex flex-col items-stretch">
+      <ChannelForm
+        className="flex-none p-5"
+        onSubmit={handleChannelSubmit}
+        isConnected={isConnected}
+      />
+      <MessageList
+        className="flex-1 p-5 bg-slate-950 text-slate-100"
+        messages={messages}
+      />
     </div>
   );
 }
