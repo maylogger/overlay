@@ -19,13 +19,29 @@ import DOMPurify from "dompurify";
 import { TwitchMessage } from "@/types/twitch"; // 新增這行
 
 export default function Home() {
-  const [messages, setMessages] = useState<TwitchMessage[]>([]); // 修改這行
-  const [channel, setChannel] = useState<string>("");
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const messageListRef = useRef<HTMLUListElement>(null); // 新增這行
+  const [messages, setMessages] = useState<TwitchMessage[]>([]); // 所有 messages
+  const [channel, setChannel] = useState<string>(""); // 所在頻道
+  const [isConnected, setIsConnected] = useState<boolean>(false); // 連線狀態
+  const messageListRef = useRef<HTMLUListElement>(null); // 訊息列表
 
   const formSchema = z.object({
-    channel: z.string().min(1, { message: "請輸入頻道名稱" }),
+    channel: z
+      .string()
+      .min(1)
+      .refine(
+        (value) => {
+          try {
+            const url = new URL(value);
+            return (
+              url.hostname === "www.twitch.tv" || url.hostname === "twitch.tv"
+            );
+          } catch {
+            // 如果不是有效的 URL，假設它是一個頻道名稱
+            return true;
+          }
+        },
+        { message: "請輸入有效的 Twitch URL 或頻道名稱" }
+      ),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,9 +57,18 @@ export default function Home() {
       setIsConnected(false);
       setMessages([]);
     } else {
-      setChannel(values.channel);
+      const channelName = extractChannelName(values.channel);
+      setChannel(channelName);
       setIsConnected(true);
     }
+  }
+
+  // 從輸入分析頻道名稱
+  function extractChannelName(input: string): string {
+    const url = input.startsWith("http") ? new URL(input) : null;
+    return url?.hostname === "www.twitch.tv" || url?.hostname === "twitch.tv"
+      ? url.pathname.split("/").filter((segment) => segment !== "")[0] || input
+      : input;
   }
 
   function getMessageHTML(
@@ -101,12 +126,13 @@ export default function Home() {
       if (self) return;
       setMessages((prev) => {
         const newMessage: TwitchMessage = {
-          id: Date.now().toString(),
+          id: tags["id"] || Date.now().toString(),
           user: tags["display-name"] || tags["username"] || "未知用戶",
           content: getMessageHTML(message, {
             emotes: (tags.emotes as Record<string, string[]>) || {},
           }),
         };
+        // 只保留最新的 10 條訊息
         return [...prev, newMessage].slice(-10);
       });
     });
@@ -115,16 +141,6 @@ export default function Home() {
       client.disconnect();
     };
   }, [channel]);
-
-  // 新增這個 useEffect 來控制 DOM 中的訊息數量
-  useEffect(() => {
-    if (messageListRef.current) {
-      const messageList = messageListRef.current;
-      while (messageList.children.length > 10) {
-        messageList.removeChild(messageList.firstChild as Node);
-      }
-    }
-  }, [messages]);
 
   return (
     <div>
@@ -155,8 +171,9 @@ export default function Home() {
         </form>
       </Form>
       <ul ref={messageListRef} className="space-y-0.5 mt-2">
-        {messages.map((msg) => (
-          <li key={msg.id}>
+        {messages.map((msg, index) => (
+          <li key={msg.id} className="line-clamp-1">
+            <span className="text-red-500 mr-1">{index}</span>
             <span>{msg.user} </span>{" "}
             <span
               className="[&_img]:inline-block [&_img]:relative [&_img]:-mt-0.5 [&_img]:h-6 [&_img]:w-auto"
