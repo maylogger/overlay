@@ -2,44 +2,38 @@
 interface Emote {
   [id: string]: string[];
 }
-interface StringReplacement {
-  stringToReplace: string;
-  replacement: string;
-}
 interface MessageWithEmotes {
   message: string;
   emotes: Emote;
 }
 
 // 修改函式簽名
-export function getMessageHTML({ message, emotes }: MessageWithEmotes) {
+export function getMessageHTML({ message, emotes }: MessageWithEmotes): string {
   // 如果沒有表情符號，就直接回傳 message
-  if (!emotes) return message;
+  if (!emotes || Object.keys(emotes).length === 0) return message;
 
-  // 用來存放 emote 替換的 string
-  const stringReplacements: StringReplacement[] = [];
+  // 使用 Array.from() 將訊息轉換為字元陣列
+  const splitText = Array.from(message);
 
-  // 遍歷 emotes，將 emote 替換為 img 標籤
-  Object.entries(emotes).forEach(([id, positions]) => {
-    const position = positions[0];
-    const [start, end] = position.split("-");
-    const stringToReplace = message.substring(
-      parseInt(start, 10),
-      parseInt(end, 10) + 1
-    );
-    stringReplacements.push({
-      stringToReplace: stringToReplace,
-      replacement: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0">`,
-    });
-  });
+  // 遍歷 emotes 物件
+  for (const [id, positions] of Object.entries(emotes)) {
+    for (const position of positions) {
+      const [start, end] = position.split("-").map(Number);
+      const length = end - start + 1;
 
-  // 將 message 中的 emote 替換為 img 標籤
-  const messageHTML = stringReplacements.reduce(
-    (acc, { stringToReplace, replacement }) => {
-      return acc.split(stringToReplace).join(replacement);
-    },
-    message
-  );
+      // 建立空白陣列來替換表情符號文字
+      const empty = Array(length).fill("");
 
-  return messageHTML;
+      // 替換表情符號文字為空白
+      splitText.splice(start, length, ...empty);
+
+      // 插入表情符號的 img 標籤
+      splitText[
+        start
+      ] = `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0">`;
+    }
+  }
+
+  // 將處理後的字元陣列合併成字串
+  return splitText.join("");
 }
