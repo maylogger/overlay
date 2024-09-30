@@ -32,7 +32,7 @@ export function useTwitchClient(channel: string) {
           badges: tags.badges ? Object.keys(tags.badges) : undefined,
           color: tags.color,
         };
-        return [...prev, newMessage].slice(-10);
+        return [...prev, newMessage].slice(-30);
       });
     });
 
