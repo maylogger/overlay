@@ -30,7 +30,7 @@ export function getMessageHTML({ message, emotes }: MessageWithEmotes): string {
       // 插入表情符號的 img 標籤
       splitText[
         start
-      ] = `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0">`;
+      ] = `<img class="emoticon" alt="" src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0">`;
     }
   }
 
