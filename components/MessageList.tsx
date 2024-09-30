@@ -27,14 +27,16 @@ export function MessageList({
         {messages.map((msg) => (
           <motion.div
             key={msg.id}
-            className="line-clamp-3 flex-none"
+            className="line-clamp-3 overflow-visible flex-none twitch-message"
             initial={{ opacity: 0, y: 20, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             transition={{ duration: 0.125 }}
           >
-            <span>{msg.user} </span>{" "}
+            <span className="font-semibold" style={{ color: msg.color }}>
+              {msg.user}{" "}
+            </span>{" "}
             <span
-              className="[&_img]:inline-block [&_img]:relative [&_img]:-mt-0.5 [&_img]:h-6 [&_img]:w-auto"
+              className="[&_img]:inline-block [&_img]:relative [&_img]:-mt-[3px] [&_img]:h-6 [&_img]:w-auto"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(msg.content),
               }}

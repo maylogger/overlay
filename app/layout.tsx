@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW" className={inter.variable}>
-      <body>{children}</body>
+      <body className="bg-slate-950 text-slate-100">{children}</body>
     </html>
   );
 }

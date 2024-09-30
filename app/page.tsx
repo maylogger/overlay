@@ -20,14 +20,11 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col items-stretch">
       <ChannelForm
-        className="flex-none p-5"
+        className="flex-none p-5 bg-white text-slate-950"
         onSubmit={handleChannelSubmit}
         isConnected={isConnected}
       />
-      <MessageList
-        className="flex-1 p-5 bg-slate-950 text-slate-100"
-        messages={messages}
-      />
+      <MessageList className="flex-1 p-5" messages={messages} />
     </div>
   );
 }
