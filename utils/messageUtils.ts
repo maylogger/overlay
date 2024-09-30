@@ -34,6 +34,6 @@ export function getMessageHTML({ message, emotes }: MessageWithEmotes): string {
     }
   }
 
-  // 將處理後的字元陣列合併成字串
-  return splitText.join("");
+  // 將處理後的字元陣列合併成字串，並移除 <img /> 標籤之間的空格
+  return splitText.join("").replace(/>\s+</g, "><");
 }

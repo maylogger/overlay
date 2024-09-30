@@ -40,7 +40,7 @@ export function useTwitchClient(channel: string) {
             )
           ),
         };
-        return [...prev, newMessage].slice(-10);
+        return [...prev, newMessage].slice(-100);
       });
     });
 
