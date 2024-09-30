@@ -22,8 +22,9 @@ export function useTwitchClient(channel: string) {
         const newMessage: TwitchMessage = {
           id: tags["id"] || Date.now().toString(),
           user: tags["display-name"] || tags["username"] || "未知用戶",
-          content: getMessageHTML(message, {
-            emotes: (tags.emotes as Record<string, string[]>) || {},
+          content: getMessageHTML({
+            message,
+            emotes: tags.emotes || {},
           }),
           timestamp: tags["tmi-sent-ts"]
             ? parseInt(tags["tmi-sent-ts"])
@@ -31,7 +32,7 @@ export function useTwitchClient(channel: string) {
           badges: tags.badges ? Object.keys(tags.badges) : undefined,
           color: tags.color,
         };
-        return [...prev, newMessage].slice(-100);
+        return [...prev, newMessage].slice(-10);
       });
     });
 
