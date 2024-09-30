@@ -9,5 +9,5 @@ export interface TwitchMessage {
   content: string;
   timestamp: number; // 新增這行
   badges?: string[];
-  color?: string;
+  color: string;
 }

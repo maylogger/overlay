@@ -14,7 +14,7 @@ const calculateLuminance = (r: number, g: number, b: number): number => {
 // 檢查顏色是否太接近黑色或白色
 export const isColorTooCloseToBlackOrWhite = (
   color: string,
-  threshold: number = 80
+  threshold: number = 40
 ): boolean => {
   const [r, g, b] = hexToRgb(color);
   const luminance = calculateLuminance(r, g, b);
@@ -24,26 +24,14 @@ export const isColorTooCloseToBlackOrWhite = (
 // 調整顏色以增加對比度
 export const adjustColorForContrast = (
   color: string,
-  amount: number = 80
+  amount: number = 100
 ): string => {
   const [r, g, b] = hexToRgb(color);
   const luminance = calculateLuminance(r, g, b);
 
-  let newR = r,
-    newG = g,
-    newB = b;
-
-  if (luminance < 128) {
-    // 如果顏色較暗，增加亮度
-    newR = Math.min(255, r + amount);
-    newG = Math.min(255, g + amount);
-    newB = Math.min(255, b + amount);
-  } else {
-    // 如果顏色較亮，降低亮度
-    newR = Math.max(0, r - amount);
-    newG = Math.max(0, g - amount);
-    newB = Math.max(0, b - amount);
-  }
+  const newR = luminance < 128 ? Math.min(255, r + amount) : r;
+  const newG = luminance < 128 ? Math.min(255, g + amount) : g;
+  const newB = luminance < 128 ? Math.min(255, b + amount) : b;
 
   return `#${newR.toString(16).padStart(2, "0")}${newG
     .toString(16)

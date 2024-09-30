@@ -35,11 +35,7 @@ export function useTwitchClient(channel: string) {
     ];
     const randomColorsChosen: Record<string, Record<string, string>> = {};
 
-    function resolveColor(
-      channel: string,
-      name: string,
-      color: string | undefined
-    ) {
+    function resolveColor(channel: string, name: string, color: string | null) {
       if (color !== null) {
         return color;
       }
@@ -69,10 +65,12 @@ export function useTwitchClient(channel: string) {
             ? parseInt(tags["tmi-sent-ts"])
             : Date.now(),
           badges: tags.badges ? Object.keys(tags.badges) : undefined,
-          color: resolveColor(
-            channel,
-            tags["display-name"] || tags["username"] || "未知用戶",
-            tags.color
+          color: adjustColorForContrast(
+            resolveColor(
+              channel,
+              tags["display-name"] || tags["username"] || "未知用戶",
+              tags.color || null
+            )
           ),
         };
         return [...prev, newMessage].slice(-10);
