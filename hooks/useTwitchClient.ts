@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import tmi from "tmi.js";
 import { TwitchMessage } from "@/types/twitch";
 import { getMessageHTML } from "@/utils/messageUtils";
-
+import { adjustColorForContrast } from "@/utils/colorUtils";
 export function useTwitchClient(channel: string) {
   const [messages, setMessages] = useState<TwitchMessage[]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -30,7 +30,7 @@ export function useTwitchClient(channel: string) {
             ? parseInt(tags["tmi-sent-ts"])
             : Date.now(),
           badges: tags.badges ? Object.keys(tags.badges) : undefined,
-          color: tags.color,
+          color: tags.color ? adjustColorForContrast(tags.color) : "#000",
         };
         return [...prev, newMessage].slice(-10);
       });
